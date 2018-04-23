@@ -39,14 +39,16 @@ import java.util.Map;
  */
 public class ZipUtils {
 
-    private static final String JAR_FILE_PREFIX = "jar:file:";
+    private static final String JAR_FILE_PREFIX = "jar:";
     private static final Map<String, String> CREATE_ENV = Collections.singletonMap("create", "true");
+    private static final Map<String, String> READ_ENV = Collections.emptyMap();
 
     public static void unzip(Path zipFile, Path targetDir) throws IOException {
         if(!Files.exists(targetDir)) {
             Files.createDirectories(targetDir);
         }
-        try (FileSystem zipfs = FileSystems.newFileSystem(zipFile, null)) {
+        final URI uri = URI.create(JAR_FILE_PREFIX + zipFile.toUri().toString());
+        try (FileSystem zipfs = FileSystems.newFileSystem(uri, READ_ENV)) {
             for(Path zipRoot : zipfs.getRootDirectories()) {
                 copyFromZip(zipRoot, targetDir);
             }
@@ -78,7 +80,7 @@ public class ZipUtils {
     }
 
     public static void zip(Path src, Path zipFile) throws IOException {
-        final URI uri = URI.create(JAR_FILE_PREFIX + zipFile.toAbsolutePath().toString());
+        final URI uri = URI.create(JAR_FILE_PREFIX + zipFile.toUri().toString());
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, CREATE_ENV)) {
             if(Files.isDirectory(src)) {
                 try (DirectoryStream<Path> stream = Files.newDirectoryStream(src)) {
