@@ -16,6 +16,7 @@
  */
 package org.jboss.galleon.test.util.fs.state;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitOption;
@@ -56,7 +57,7 @@ public class DirState extends PathState {
 
         public DirBuilder addDir(String relativePath) {
             DirState.DirBuilder dirBuilder = this;
-            final String[] parts = relativePath.split("/");
+            final String[] parts = relativePath.replace(File.separatorChar, '/').split("/");
             int i = 0;
             while (i < parts.length) {
                 dirBuilder = dirBuilder.dirBuilder(parts[i++]);
@@ -66,7 +67,7 @@ public class DirState extends PathState {
 
         public DirBuilder addFile(String relativePath, String content) {
             DirState.DirBuilder dirBuilder = this;
-            final String[] parts = relativePath.split("/");
+            final String[] parts = relativePath.replace(File.separatorChar, '/').split("/");
             int i = 0;
             if(parts.length > 1) {
                 while(i < parts.length - 1) {
@@ -89,7 +90,7 @@ public class DirState extends PathState {
 
         public DirBuilder skip(String relativePath) {
             DirState.DirBuilder dirBuilder = this;
-            final String[] parts = relativePath.split("/");
+            final String[] parts = relativePath.replace(File.separatorChar, '/').split("/");
             int i = 0;
             if(parts.length > 1) {
                 while(i < parts.length - 1) {
@@ -164,20 +165,20 @@ public class DirState extends PathState {
         if(!Files.isDirectory(path)) {
             Assert.fail("Path is a directory: " + path);
         }
-        try(DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-            Set<String> actualPaths = new HashSet<>();
-            for(Path child : stream) {
+        Set<String> actualPaths = new HashSet<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+            for (Path child : stream) {
                 actualPaths.add(child.getFileName().toString());
-            }
-            for(Map.Entry<String, PathState> entry : childStates.entrySet()) {
-                entry.getValue().assertState(path);
-                actualPaths.remove(entry.getKey());
-            }
-            if(!actualPaths.isEmpty()) {
-                Assert.fail("Dir " + path + " does not contain " + actualPaths);
             }
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read directory " + path, e);
+        }
+        for (Map.Entry<String, PathState> entry : childStates.entrySet()) {
+            entry.getValue().assertState(path);
+            actualPaths.remove(entry.getKey());
+        }
+        if (!actualPaths.isEmpty()) {
+            Assert.fail("Dir " + path + " does not contain " + actualPaths);
         }
     }
 }

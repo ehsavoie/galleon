@@ -16,6 +16,7 @@
  */
 package org.jboss.galleon.util;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public interface PathFilter {
 
         @Override
         public boolean accept(Path path) {
-            final String current = path.toString();
+            final String current = path.toString().replace(File.separatorChar, '/');
             boolean acceptDirectory = !this.directories.stream().anyMatch(new Predicate<Pattern>() {
                 @Override
                 public boolean test(Pattern pattern) {
@@ -109,7 +110,7 @@ public interface PathFilter {
             if (expr == null) {
                 throw new IllegalArgumentException("expr is null");
             }
-            String regex = expr.replaceAll("([(){}\\[\\].+^$])", "\\\\$1"); // escape regex characters
+            String regex = expr.replace(File.separatorChar, '/').replaceAll("([(){}\\[\\].+^$])", "\\\\$1"); // escape regex characters
             regex = regex.replaceAll("\\*", ".*"); // replace * with .*
             regex = regex.replaceAll("\\?", "."); // replace ? with .
             return Pattern.compile(regex);

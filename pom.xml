@@ -24,12 +24,12 @@
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
-    <version>24</version>
+    <version>26</version>
   </parent>
 
   <groupId>org.jboss.galleon</groupId>
   <artifactId>galleon-parent</artifactId>
-  <version>1.0.0.Alpha4-SNAPSHOT</version>
+  <version>1.0.0.Alpha5-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Galleon parent</name>
